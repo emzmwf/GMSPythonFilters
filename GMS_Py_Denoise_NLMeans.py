@@ -28,7 +28,7 @@ sigma_est = np.mean(estimate_sigma(dmImgData, channel_axis=-1))        ##channel
 
 patch_kw = dict(patch_size=5,      # 5x5 patches
                 patch_distance=6,  # 13x13 search area
-                multichannel=False)    # change from channel_axis=-1
+                multichannel=False)    # deprecated in future, change to channel_axis=-1
 
 # slow algorithm
 proc = denoise_nl_means(dmImgData, h=1.15 * sigma_est, fast_mode=False,
