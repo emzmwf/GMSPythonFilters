@@ -2,6 +2,8 @@
 Run denoising NonLocalMeans filter on front most image
 VERY SLOW
 
+Note, user should consider effects of non-local averaging on the data when analysing
+
 '''
 
 import DigitalMicrograph as DM
