@@ -2,6 +2,7 @@
 
 # Demo of OpenCV scripts
 # last updated 28th April 2023 - MWF
+# Note Feb 2024 - confirmed to work with GMS v 3.60
 # Convolution, Blur, Median Blur, Gaussian Blur, Bilateral
 #
 #Filtered images have the same tags and calibration as the original
