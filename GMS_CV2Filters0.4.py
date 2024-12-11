@@ -128,7 +128,8 @@ def Tag_Copy(image_source, image_dest, subPath = None ):
 
          tg_dest.CopyTagsFrom(tg_source.Clone())
 
- 
+# Add tag to note filter used in this def? Supply name of filter to def as FilterUsed
+# tg_dest.SetTagAsString( 'Python Filtering:Filter',FilterUsed )
 
 
 
