@@ -128,6 +128,6 @@ def DoFilter(d):
     
 
 # Define pixel diamater of filter
-d = 45
+bVal, d = DM.GetNumber( 'Please enter radius of rolling ball in pixels', 25 )  
 DoFilter(d)
 DM.OkDialog("Filtered images in the workspace Filtered")
