@@ -6,8 +6,8 @@ from PIL import Image
 import io
 
 ### Batch particle sizing analysis from dm4 data
-### Get optimised values from the JupyterNotebook script at
-### \\nmrc-nas.nottingham.ac.uk\data\Data Processing Area\Scripts\Python scripts\Package Specific\SimpliPyTEMdata\TEM_Particle_Analysis_(2025).ipynb
+### Get optimised values from the JupyterNotebook script
+### TEM_Particle_Analysis_(2025).ipynb
 
 #### Define options here ####
 #File list TRUE or search dir FALSE
