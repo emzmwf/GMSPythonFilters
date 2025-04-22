@@ -17,9 +17,10 @@ from tkinter import *
 fmode = FALSE
 lnormval = 6
 Gaussval = 7
-useautomated = TRUE
+useautomated = True
 valpick = 1017
 PixWd = 50
+#IgnoreIfFail = True
 
 uservars = {
 	'lnormval': lnormval,
@@ -89,6 +90,7 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	useautomated = uservars['useautomated']
 	valpick = uservars['valpick']
 	PixWd = uservars['PixWd']
+	#IgnoreIfFail = uservars['IgnoreIfFail']
 	#im = Micrograph(files[FileNo])
 	im = Micrograph(FileName)
 	imp = im.local_normalisation(lnormval)
@@ -113,12 +115,14 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 		except:
 			print("\n Threshold not found, using default")
 			threshold = valpick
+			#Skip to next image if IgnoreIfFail = True?
 	else:
 		threshold = valpick
 	thresh= Threshold(imp_gaussian.image, threshold)
 	#Now find particles
 	contours_im, mask =Find_contours(thresh, minsize=PixWd)
 	data = Collect_particle_data(contours_im, imp_gaussian.pixel_size)
+	# To be added - if IgnoreIfFail = True, check if there is no data and stop processing this image if so
 	# save data as a file
 	import json
 	with open(titles[FileNo]+'data.json', 'w') as fp:
