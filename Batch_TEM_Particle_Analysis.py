@@ -102,7 +102,7 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	ax.set_xlabel("Pixel values")
 	ax.set_ylabel("Frequency")
 	figHT.savefig(titles[FileNo]+'IntensityHistogram_FromTIF.png', dpi=200)
-	outfile = titles[FileNo]+' IntensityHistogram'
+	outfile = titles[FileNo]+'/Analysis/IntensityHistogram'
 	np.save(outfile, histT)
 	# identify peaks and valley, use valley to set threshold value if useautomated selected
 	from scipy.signal import find_peaks
@@ -133,7 +133,7 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	plt.ylabel('Frequency')
 	plt.title(titles[FileNo])
 	fig.savefig(titles[FileNo]+'ParticleSizing.png', dpi=200)
-	print("\n saved "+titles[FileNo]+'ParticleSizing.png')
+	print("\n saved "+titles[FileNo]+'/Analysis/ParticleSizing.png')
 	plt.close()
 	#create lists to store data
 	masks = []
@@ -147,7 +147,7 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	import pandas as pd
 	df = pd.DataFrame(alldata_dict)
 	#export to csv file
-	df.to_csv(titles[FileNo]+'Particle_data.csv')
+	df.to_csv(titles[FileNo]+'/Analysis/Particle_data.csv')
 
 
 ##############################################
