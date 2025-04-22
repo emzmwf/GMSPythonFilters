@@ -5,6 +5,9 @@ import numpy as np
 from PIL import Image
 import io
 
+from tkinter import filedialog
+from tkinter import *
+
 ### Batch particle sizing analysis from dm4 data
 ### Get optimised values from the JupyterNotebook script
 ### TEM_Particle_Analysis_(2025).ipynb
@@ -59,8 +62,9 @@ def LoadList():
 def globList():
 	import glob
 	# Select directory using tkinter
-	#dir = "//nmrc-nas.nottingham.ac.uk/data/Instrument Data/2100Plus/LowkV/80 60 40 20 at 250kx Ultrascan/temp"
-	dir = "X:/MW Fay/2024/20240530 Charles Heaton/2 OT-AuNPs/TEM (6)"
+	root = Tk()
+	root.withdraw()
+	dir = filedialog.askdirectory()
 	# All files and directories ending with .dm4 and that don't begin with a dot:
 	files_list = (glob.glob(str(dir+"/*.dm4")))
 	titles = []
