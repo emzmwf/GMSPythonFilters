@@ -51,33 +51,42 @@ def LoadList():
 	#Parse the file names for the titles
 	titles = []
 	for x in files:
-		tfile = files[x].split("kX_",1)[1])
-		tfile2 = tfile.split(".dm4",1)[0])
+		tfile = files[x].split("kX_",1)[1]
+		tfile2 = tfile.split(".dm4",1)[0]
 		titles.append(tfile2)
-	returns files, titles
+	return files, titles
 
 def globList():
 	import glob
 	# Select directory using tkinter
-	dir = "//nmrc-nas.nottingham.ac.uk/data/Instrument Data/2100Plus/LowkV/80 60 40 20 at 250kx Ultrascan"
+	#dir = "//nmrc-nas.nottingham.ac.uk/data/Instrument Data/2100Plus/LowkV/80 60 40 20 at 250kx Ultrascan/temp"
+	dir = "X:/MW Fay/2024/20240530 Charles Heaton/2 OT-AuNPs/TEM (6)"
 	# All files and directories ending with .dm4 and that don't begin with a dot:
-	files = (glob.glob(str(dir+"/*.dm4"))
+	files_list = (glob.glob(str(dir+"/*.dm4")))
 	titles = []
 	# For loop within files to extract and populate array titles
-	for x in files:
-		tfile = files[x].split("kX_",1)[1])
-		tfile2 = tfile.split(".dm4",1)[0])
+	print(files_list)
+	for x in files_list:
+		index = files_list.index(x)
+		#tfile = files_list[x].split("kX_",1)[1]
+		try:
+			tfile = x.split("kX_",1)[1]
+		except:
+			tfile = x.split("kX_",1)[0]
+		tfile2 = tfile.split(".dm4",1)[0]
 		titles.append(tfile2)
-	returns files, titles
+	return files_list, titles
 
-def GetParticles(files, titles, FileNo, uservars):
+def GetParticles(files, titles, FileName, FileNo, uservars):
+	print("FileName is: "+str(FileName))
 	#unpack vars
-	lnormval = uservars[0]
-	Gaussval = uservars[1]
-	useautomated = uservars[2]
-	valpick = uservars[3]
-	PixWd = uservars[4]
-	im = Micrograph(files[FileNo])
+	lnormval = uservars['lnormval']
+	Gaussval = uservars['Gaussval']
+	useautomated = uservars['useautomated']
+	valpick = uservars['valpick']
+	PixWd = uservars['PixWd']
+	#im = Micrograph(files[FileNo])
+	im = Micrograph(FileName)
 	imp = im.local_normalisation(lnormval)
 	imp_gaussian= imp.gaussian_filter(Gaussval)
 	from scipy import ndimage
@@ -94,7 +103,12 @@ def GetParticles(files, titles, FileNo, uservars):
 	peaks, _ = find_peaks(histT, width=20)
 	valley, _ = find_peaks(-histT, width=20, prominence = 500)
 	if useautomated == True:
-		threshold = valley[0]
+		try:
+			threshold = valley[0]
+			print("\n Using Threshold of "+str(threshold))
+		except:
+			print("\n Threshold not found, using default")
+			threshold = valpick
 	else:
 		threshold = valpick
 	thresh= Threshold(imp_gaussian.image, threshold)
@@ -111,6 +125,8 @@ def GetParticles(files, titles, FileNo, uservars):
 	plt.ylabel('Frequency')
 	plt.title(titles[FileNo])
 	fig.savefig(titles[FileNo]+'ParticleSizing.png', dpi=200)
+	print("\n saved "+titles[FileNo]+'ParticleSizing.png')
+	plt.close()
 	#create lists to store data
 	masks = []
 	alldata = []
@@ -130,8 +146,7 @@ def GetParticles(files, titles, FileNo, uservars):
 ###  Main body
 ##############################################
 
-
-if fmode == TRUE:
+if fmode == True:
 	#Load in text file with file list
 	files, titles = LoadList()
 else:
@@ -139,7 +154,11 @@ else:
 	files, titles = globList()
 
 #Iterate over list and run particle measuring
+	indno = 0
 	for x in files:
-		GetParticles(files, titles, x, uservars)
-	
+		try:
+			GetParticles(files, titles, x, indno, uservars)
+		except:
+			print("/n file "+x +"not processed")
+		indno += 1
 	
