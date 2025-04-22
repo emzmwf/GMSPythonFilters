@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import io
+import os
 
 from tkinter import filedialog
 from tkinter import *
@@ -20,15 +21,18 @@ Gaussval = 7
 useautomated = True
 valpick = 1017
 PixWd = 50
-#IgnoreIfFail = True
+IgnoreIfFail = True
+#SaveToDataDir = True
 
 uservars = {
 	'lnormval': lnormval,
 	'Gaussval': Gaussval,
 	'useautomated': useautomated,
 	'valpick': valpick,
-	'PixWd': PixWd
+	'PixWd': PixWd,
+	'IgnoreIfFail': IgnoreIfFail
 }
+
 
 ##############################################
 ###  DEFs
@@ -58,7 +62,7 @@ def LoadList():
 		tfile = files[x].split("kX_",1)[1]
 		tfile2 = tfile.split(".dm4",1)[0]
 		titles.append(tfile2)
-	return files, titles
+	return files, titles, file_path
 
 def globList():
 	import glob
@@ -80,9 +84,9 @@ def globList():
 			tfile = x.split("kX_",1)[0]
 		tfile2 = tfile.split(".dm4",1)[0]
 		titles.append(tfile2)
-	return files_list, titles
+	return files_list, titles, dir
 
-def GetParticles(files, titles, FileName, FileNo, uservars):
+def GetParticles(files, titles, FileName, FileNo, uservars, dir):
 	print("FileName is: "+str(FileName))
 	#unpack vars
 	lnormval = uservars['lnormval']
@@ -90,19 +94,21 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	useautomated = uservars['useautomated']
 	valpick = uservars['valpick']
 	PixWd = uservars['PixWd']
-	#IgnoreIfFail = uservars['IgnoreIfFail']
+	IgnoreIfFail = uservars['IgnoreIfFail']
 	#im = Micrograph(files[FileNo])
 	im = Micrograph(FileName)
 	imp = im.local_normalisation(lnormval)
 	imp_gaussian= imp.gaussian_filter(Gaussval)
 	from scipy import ndimage
 	histT = ndimage.histogram(imp_gaussian.image, min = 0, max = imp_gaussian.image.max(), bins = int(imp_gaussian.image.max()))
+	#Plot and save - not working? Investigate!
 	figHT, ax = plt.subplots()
 	ax.set_title(titles[FileNo]+"Histogram")
 	ax.set_xlabel("Pixel values")
 	ax.set_ylabel("Frequency")
-	figHT.savefig(titles[FileNo]+'IntensityHistogram_FromTIF.png', dpi=200)
-	outfile = titles[FileNo]+'/Analysis/IntensityHistogram'
+	figHT.savefig(titles[FileNo]+'PA_IntensityHistogram_FromTIF.png', dpi=200)
+	outfile = titles[FileNo]+'PA_IntensityHistogram'
+	plt.close()
 	np.save(outfile, histT)
 	# identify peaks and valley, use valley to set threshold value if useautomated selected
 	from scipy.signal import find_peaks
@@ -113,9 +119,13 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 			threshold = valley[0]
 			print("\n Using Threshold of "+str(threshold))
 		except:
-			print("\n Threshold not found, using default")
-			threshold = valpick
-			#Skip to next image if IgnoreIfFail = True?
+			if IgnoreIfFail == True:
+				print("\n Threshold not found, skipping")
+				return()
+			else:
+				print("\n Threshold not found, using default")
+				threshold = valpick
+
 	else:
 		threshold = valpick
 	thresh= Threshold(imp_gaussian.image, threshold)
@@ -132,8 +142,8 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	plt.xlabel('Particle Width ('+imp_gaussian.pixel_unit+')')
 	plt.ylabel('Frequency')
 	plt.title(titles[FileNo])
-	fig.savefig(titles[FileNo]+'ParticleSizing.png', dpi=200)
-	print("\n saved "+titles[FileNo]+'/Analysis/ParticleSizing.png')
+	fig.savefig(titles[FileNo]+'PA_ParticleSizing.png', dpi=200)
+	print("\n saved "+titles[FileNo]+'PA_ParticleSizing.png')
 	plt.close()
 	#create lists to store data
 	masks = []
@@ -147,7 +157,7 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 	import pandas as pd
 	df = pd.DataFrame(alldata_dict)
 	#export to csv file
-	df.to_csv(titles[FileNo]+'/Analysis/Particle_data.csv')
+	df.to_csv(titles[FileNo]+'PA_Particle_data.csv')
 
 
 ##############################################
@@ -156,17 +166,19 @@ def GetParticles(files, titles, FileName, FileNo, uservars):
 
 if fmode == True:
 	#Load in text file with file list
-	files, titles = LoadList()
+	files, titles, dir = LoadList()
 else:
 	#Ask for directory and use glob
-	files, titles = globList()
+	files, titles, dir = globList()
+
 
 #Iterate over list and run particle measuring
 	indno = 0
 	for x in files:
 		try:
-			GetParticles(files, titles, x, indno, uservars)
+			GetParticles(files, titles, x, indno, uservars, dir)
 		except:
-			print("/n file "+x +"not processed")
+			print("\n file "+x +"not processed")
 		indno += 1
 	
+
